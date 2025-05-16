@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Filament\Resources\Tables\Columns\BadgeColumn;
 
 
 class PostResource extends Resource
@@ -31,6 +32,10 @@ class PostResource extends Resource
                     ->relationship('categories', 'name')
                     ->multiple()
                     ->preload(),
+                    Forms\Components\Select::make('tags')
+                    ->relationship('tags', 'name')
+                    ->multiple()
+                    ->preload(),
                 Forms\Components\Toggle::make('published'),
                 Forms\Components\DateTimePicker::make('published_at'),
             ]);
@@ -42,6 +47,24 @@ class PostResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('title')->searchable(),
                 Tables\Columns\TextColumn::make('slug'),
+                Tables\Columns\BadgeColumn::make('categories')
+            ->formatStateUsing(function ($state) {
+                if ($state->categories) {
+                    $categories = $state->categories->pluck('name')->implode(', ');
+                    return $categories;
+                } else {
+                    return '';
+                }
+            }),
+            Tables\Columns\BadgeColumn::make('tags')
+            ->formatStateUsing(function ($state) {
+                if ($state->tags) {
+                    $tags = $state->tags->pluck('name')->implode(', ');
+                    return $tags;
+                } else {
+                    return '';
+                }
+            }),
                 Tables\Columns\TextColumn::make('created_at'),
                 Tables\Columns\TextColumn::make('updated_at'),
             ])
